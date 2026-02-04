@@ -29,3 +29,6 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
+
+# Documentation
+interview_questions.md

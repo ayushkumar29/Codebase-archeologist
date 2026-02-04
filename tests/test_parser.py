@@ -1,7 +1,3 @@
-"""
-Tests for the Python AST parser.
-"""
-
 import pytest
 from pathlib import Path
 
@@ -13,13 +9,11 @@ from src.ingestion.parser import PythonParser, FunctionInfo, ClassInfo
 
 @pytest.fixture
 def parser():
-    """Create a parser instance."""
     return PythonParser()
 
 
 @pytest.fixture
 def sample_code():
-    """Sample Python code for testing."""
     return '''
 class MyClass:
     """A sample class."""
@@ -45,10 +39,8 @@ from pathlib import Path
 
 
 class TestPythonParser:
-    """Tests for the PythonParser class."""
     
     def test_parse_class(self, parser, sample_code):
-        """Test that classes are correctly parsed."""
         result = parser.parse_source(sample_code, "test.py")
         
         assert result is not None
@@ -60,7 +52,6 @@ class TestPythonParser:
         assert len(cls.methods) == 2
         
     def test_parse_methods(self, parser, sample_code):
-        """Test that methods are correctly parsed."""
         result = parser.parse_source(sample_code, "test.py")
         
         cls = result.classes[0]
@@ -70,7 +61,6 @@ class TestPythonParser:
         assert "get_value" in method_names
         
     def test_parse_function(self, parser, sample_code):
-        """Test that standalone functions are parsed."""
         result = parser.parse_source(sample_code, "test.py")
         
         assert len(result.functions) == 1
@@ -81,7 +71,6 @@ class TestPythonParser:
         assert "y" in func.parameters
         
     def test_parse_imports(self, parser, sample_code):
-        """Test that imports are correctly parsed."""
         result = parser.parse_source(sample_code, "test.py")
         
         assert len(result.imports) >= 3
@@ -92,7 +81,6 @@ class TestPythonParser:
         assert "pathlib" in import_modules
         
     def test_parse_file(self, parser, tmp_path):
-        """Test parsing an actual file."""
         test_file = tmp_path / "test_module.py"
         test_file.write_text("""
 def hello(name: str) -> str:
@@ -106,7 +94,6 @@ def hello(name: str) -> str:
         assert result.functions[0].name == "hello"
         
     def test_parse_syntax_error(self, parser):
-        """Test handling of syntax errors."""
         bad_code = "def broken(:\n    pass"
         
         result = parser.parse_source(bad_code, "bad.py")
@@ -114,7 +101,6 @@ def hello(name: str) -> str:
         assert result is None
         
     def test_parse_inheritance(self, parser):
-        """Test parsing class inheritance."""
         code = """
 class Child(Parent):
     pass
@@ -125,7 +111,6 @@ class Child(Parent):
         assert "Parent" in result.classes[0].base_classes
         
     def test_parse_decorators(self, parser):
-        """Test parsing decorators."""
         code = """
 @dataclass
 class Config:

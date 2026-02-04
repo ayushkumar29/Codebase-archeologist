@@ -1,5 +1,3 @@
-"""Ingestion Engine - Parses code and extracts relationships."""
-
 from .scanner import CodeScanner
 from .parser import PythonParser
 from .extractor import RelationshipExtractor

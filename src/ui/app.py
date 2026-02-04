@@ -1,7 +1,3 @@
-"""
-The Codebase Archaeologist - Main Streamlit Application
-"""
-
 import json
 import logging
 import os
@@ -10,7 +6,6 @@ from pathlib import Path
 
 import streamlit as st
 
-# Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.config import get_settings
@@ -23,12 +18,10 @@ from src.ui.components import (
     render_graph_visualization
 )
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Page config
 st.set_page_config(
     page_title="Codebase Archaeologist",
     page_icon="🏛️",
@@ -36,7 +29,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
 st.markdown("""
 <style>
     .stApp {
@@ -66,7 +58,6 @@ st.markdown("""
 
 
 def init_session_state():
-    """Initialize session state variables."""
     if "messages" not in st.session_state:
         st.session_state.messages = []
         
@@ -87,16 +78,8 @@ def init_session_state():
 
 
 def ingest_codebase(path: str, languages: list[str]):
-    """
-    Ingest a codebase into the vector and graph stores.
-    
-    Args:
-        path: Path to the codebase
-        languages: List of languages to parse
-    """
     with st.spinner("🔍 Scanning codebase..."):
         try:
-            # Map language names to extensions
             ext_map = {
                 "Python": [".py"],
                 "JavaScript": [".js", ".jsx"],
@@ -107,7 +90,6 @@ def ingest_codebase(path: str, languages: list[str]):
             for lang in languages:
                 extensions.extend(ext_map.get(lang, []))
                 
-            # Scan and parse
             extractor = RelationshipExtractor()
             graph = extractor.process_codebase(path)
             
@@ -141,11 +123,10 @@ def ingest_codebase(path: str, languages: list[str]):
         try:
             graph_store = GraphStore()
             graph_store.connect()
-            graph_store.clear()  # Clear existing data
+            graph_store.clear()
             graph_store.index_graph(graph)
             st.session_state.graph_store = graph_store
             
-            # Get stats
             st.session_state.stats = graph_store.get_statistics()
             st.session_state.stats["vector_store_count"] = vector_store.count()
             
@@ -179,17 +160,13 @@ def ingest_codebase(path: str, languages: list[str]):
 
 
 def main():
-    """Main application entry point."""
     init_session_state()
     
-    # Header
     st.markdown('<h1 class="main-header">🏛️ The Codebase Archaeologist</h1>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">AI-powered code exploration using Knowledge Graphs</p>', unsafe_allow_html=True)
     
-    # Sidebar
     render_sidebar_ingestion(ingest_codebase)
     
-    # Main content tabs
     tab1, tab2, tab3 = st.tabs(["💬 Chat", "📊 Graph", "📈 Stats"])
     
     with tab1:
@@ -203,26 +180,20 @@ def main():
 
 
 def render_chat_tab():
-    """Render the chat interface."""
-    # Display chat messages
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
             
-    # Chat input
     if prompt := st.chat_input("Ask about the codebase...", key="chat_input"):
-        # Check if agent is initialized
         if st.session_state.agent is None:
             st.warning("⚠️ Please ingest a codebase first using the sidebar.")
             return
             
-        # Add user message
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         with st.chat_message("user"):
             st.markdown(prompt)
             
-        # Get agent response
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 try:
@@ -236,14 +207,12 @@ def render_chat_tab():
 
 
 def render_graph_tab():
-    """Render the graph visualization."""
     if st.session_state.graph_store is None:
         st.info("📊 Ingest a codebase to see the dependency graph.")
         return
         
     st.subheader("Dependency Graph Visualization")
     
-    # Query options
     col1, col2 = st.columns([2, 1])
     
     with col1:
@@ -256,8 +225,6 @@ def render_graph_tab():
     with col2:
         max_depth = st.slider("Max depth", 1, 5, 2)
         
-    # For now, show a placeholder
-    # TODO: Build actual graph from Neo4j queries
     st.info("🚧 Interactive graph visualization coming soon!")
     st.markdown("""
     The graph will show:
@@ -275,7 +242,6 @@ def render_graph_tab():
 
 
 def render_stats_tab():
-    """Render the statistics dashboard."""
     if not st.session_state.stats:
         st.info("📈 Ingest a codebase to see statistics.")
         return
@@ -283,7 +249,6 @@ def render_stats_tab():
     st.subheader("Codebase Statistics")
     render_stats_cards(st.session_state.stats)
     
-    # Additional insights
     st.divider()
     st.subheader("Quick Insights")
     

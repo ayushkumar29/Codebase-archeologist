@@ -1,7 +1,3 @@
-"""
-Tests for the relationship extractor.
-"""
-
 import pytest
 from pathlib import Path
 
@@ -18,21 +14,17 @@ from src.ingestion.extractor import (
 
 @pytest.fixture
 def extractor():
-    """Create an extractor instance."""
     return RelationshipExtractor()
 
 
 @pytest.fixture
 def sample_codebase_path():
-    """Get the path to the sample codebase."""
     return Path(__file__).parent / "sample_codebase"
 
 
 class TestRelationshipExtractor:
-    """Tests for the RelationshipExtractor class."""
     
     def test_process_single_file(self, extractor, sample_codebase_path):
-        """Test processing a single file."""
         models_path = sample_codebase_path / "models.py"
         
         if not models_path.exists():
@@ -42,10 +34,9 @@ class TestRelationshipExtractor:
         
         assert parsed is not None
         assert parsed.language == "python"
-        assert len(parsed.classes) >= 2  # BaseRepository, UserRepository
+        assert len(parsed.classes) >= 2
         
     def test_process_codebase(self, extractor, sample_codebase_path):
-        """Test processing the entire sample codebase."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
@@ -55,17 +46,15 @@ class TestRelationshipExtractor:
         assert len(graph.relationships) > 0
         
     def test_file_nodes_created(self, extractor, sample_codebase_path):
-        """Test that file nodes are created."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
         graph = extractor.process_codebase(sample_codebase_path)
         
         file_nodes = [n for n in graph.nodes.values() if n.type == "file"]
-        assert len(file_nodes) >= 2  # models.py, auth.py
+        assert len(file_nodes) >= 2
         
     def test_class_nodes_created(self, extractor, sample_codebase_path):
-        """Test that class nodes are created."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
@@ -79,7 +68,6 @@ class TestRelationshipExtractor:
         assert "User" in class_names
         
     def test_inheritance_relationships(self, extractor, sample_codebase_path):
-        """Test that inheritance relationships are detected."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
@@ -90,11 +78,9 @@ class TestRelationshipExtractor:
             if r.type == RelationType.INHERITS_FROM
         ]
         
-        # UserRepository should inherit from BaseRepository
         assert len(inheritance_rels) >= 1
         
     def test_import_relationships(self, extractor, sample_codebase_path):
-        """Test that import relationships are detected."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
@@ -108,7 +94,6 @@ class TestRelationshipExtractor:
         assert len(import_rels) >= 1
         
     def test_declares_relationships(self, extractor, sample_codebase_path):
-        """Test that DECLARES relationships are created."""
         if not sample_codebase_path.exists():
             pytest.skip("Sample codebase not available")
             
@@ -119,15 +104,12 @@ class TestRelationshipExtractor:
             if r.type == RelationType.DECLARES
         ]
         
-        # Files should declare their classes and functions
         assert len(declares_rels) >= 3
 
 
 class TestCodeGraph:
-    """Tests for the CodeGraph class."""
     
     def test_add_node(self):
-        """Test adding nodes to the graph."""
         graph = CodeGraph()
         node = CodeNode(
             id="test:node",
@@ -142,7 +124,6 @@ class TestCodeGraph:
         assert graph.get_node("test:node") == node
         
     def test_add_relationship(self):
-        """Test adding relationships to the graph."""
         from src.ingestion.extractor import CodeRelationship
         
         graph = CodeGraph()

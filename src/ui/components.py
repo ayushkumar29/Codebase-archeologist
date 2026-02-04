@@ -1,27 +1,16 @@
-"""
-UI Components - Reusable Streamlit components for the Archaeologist UI.
-"""
-
 import streamlit as st
 from streamlit_agraph import agraph, Node, Edge, Config
 
 
 def render_graph_visualization(graph_data: dict):
-    """
-    Render an interactive graph visualization.
-    
-    Args:
-        graph_data: Dictionary with 'nodes' and 'edges' lists
-    """
     nodes = []
     edges = []
     
-    # Color scheme for different node types
     colors = {
-        "file": "#4A90D9",      # Blue
-        "class": "#50C878",     # Green
-        "function": "#FFB347",  # Orange
-        "module": "#DDA0DD"     # Plum
+        "file": "#4A90D9",
+        "class": "#50C878",
+        "function": "#FFB347",
+        "module": "#DDA0DD"
     }
     
     sizes = {
@@ -35,7 +24,7 @@ def render_graph_visualization(graph_data: dict):
         node_type = node.get("type", "unknown")
         nodes.append(Node(
             id=node["id"],
-            label=node.get("name", node["id"])[:30],  # Truncate long names
+            label=node.get("name", node["id"])[:30],
             size=sizes.get(node_type, 15),
             color=colors.get(node_type, "#888888"),
             title=f"{node_type}: {node.get('name', '')}\n{node.get('file_path', '')}"
@@ -64,12 +53,6 @@ def render_graph_visualization(graph_data: dict):
 
 
 def render_code_result(result: dict):
-    """
-    Render a single code search result.
-    
-    Args:
-        result: Dictionary with code result data
-    """
     node_type = result.get("type", "unknown")
     name = result.get("name", "Unknown")
     file_path = result.get("file", "Unknown")
@@ -77,7 +60,6 @@ def render_code_result(result: dict):
     similarity = result.get("similarity", 0)
     docstring = result.get("docstring", "")
     
-    # Type badge colors
     type_colors = {
         "function": "🟠",
         "class": "🟢",
@@ -106,12 +88,6 @@ def render_code_result(result: dict):
 
 
 def render_stats_cards(stats: dict):
-    """
-    Render statistics as metric cards.
-    
-    Args:
-        stats: Dictionary with codebase statistics
-    """
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -142,13 +118,6 @@ def render_stats_cards(stats: dict):
 
 
 def render_chat_message(role: str, content: str):
-    """
-    Render a chat message.
-    
-    Args:
-        role: "user" or "assistant"
-        content: Message content
-    """
     if role == "user":
         st.chat_message("user").markdown(content)
     else:
@@ -156,12 +125,6 @@ def render_chat_message(role: str, content: str):
 
 
 def render_sidebar_ingestion(on_ingest_callback):
-    """
-    Render the sidebar with ingestion controls.
-    
-    Args:
-        on_ingest_callback: Callback function when ingest button is clicked
-    """
     with st.sidebar:
         st.header("🏛️ Codebase Ingestion")
         
@@ -195,7 +158,6 @@ def render_sidebar_ingestion(on_ingest_callback):
                 
         st.divider()
         
-        # Status display
         if "ingestion_status" in st.session_state:
             status = st.session_state.ingestion_status
             if status.get("success"):

@@ -1,7 +1,3 @@
-"""
-AST Parser - Extracts classes, functions, and imports from Python source code.
-"""
-
 import ast
 import logging
 from dataclasses import dataclass, field
@@ -13,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class FunctionInfo:
-    """Represents a parsed function or method."""
     name: str
     file_path: str
     line_number: int
@@ -28,7 +23,6 @@ class FunctionInfo:
     
     @property
     def qualified_name(self) -> str:
-        """Get fully qualified name including class if method."""
         if self.class_name:
             return f"{self.class_name}.{self.name}"
         return self.name
@@ -36,7 +30,6 @@ class FunctionInfo:
 
 @dataclass
 class ClassInfo:
-    """Represents a parsed class."""
     name: str
     file_path: str
     line_number: int
@@ -49,9 +42,8 @@ class ClassInfo:
 
 @dataclass
 class ImportInfo:
-    """Represents an import statement."""
     module: str
-    name: Optional[str] = None  # For "from x import name"
+    name: Optional[str] = None
     alias: Optional[str] = None
     line_number: int = 0
     is_from_import: bool = False
@@ -59,7 +51,6 @@ class ImportInfo:
 
 @dataclass
 class ParsedFile:
-    """Complete parsed representation of a source file."""
     file_path: str
     language: str
     classes: list[ClassInfo] = field(default_factory=list)
@@ -69,18 +60,8 @@ class ParsedFile:
 
 
 class PythonParser:
-    """Parses Python source files using the AST module."""
     
     def parse_file(self, file_path: Path | str) -> Optional[ParsedFile]:
-        """
-        Parse a Python file and extract its structure.
-        
-        Args:
-            file_path: Path to the Python file
-            
-        Returns:
-            ParsedFile object or None if parsing fails
-        """
         file_path = Path(file_path)
         
         try:
@@ -91,16 +72,6 @@ class PythonParser:
             return None
     
     def parse_source(self, source: str, file_path: str = "<string>") -> Optional[ParsedFile]:
-        """
-        Parse Python source code string.
-        
-        Args:
-            source: Python source code
-            file_path: Path for reference
-            
-        Returns:
-            ParsedFile object or None if parsing fails
-        """
         try:
             tree = ast.parse(source)
         except SyntaxError as e:
@@ -115,7 +86,6 @@ class PythonParser:
             elif isinstance(node, ast.ImportFrom):
                 parsed.imports.extend(self._parse_from_import(node))
         
-        # Parse top-level items
         for node in tree.body:
             if isinstance(node, ast.ClassDef):
                 parsed.classes.append(self._parse_class(node, file_path))
@@ -129,7 +99,6 @@ class PythonParser:
         return parsed
     
     def _parse_import(self, node: ast.Import) -> list[ImportInfo]:
-        """Parse a regular import statement."""
         imports = []
         for alias in node.names:
             imports.append(ImportInfo(
@@ -141,7 +110,6 @@ class PythonParser:
         return imports
     
     def _parse_from_import(self, node: ast.ImportFrom) -> list[ImportInfo]:
-        """Parse a from-import statement."""
         imports = []
         module = node.module or ""
         
@@ -156,8 +124,6 @@ class PythonParser:
         return imports
     
     def _parse_class(self, node: ast.ClassDef, file_path: str) -> ClassInfo:
-        """Parse a class definition."""
-        # Get base classes
         bases = []
         for base in node.bases:
             if isinstance(base, ast.Name):
@@ -165,7 +131,6 @@ class PythonParser:
             elif isinstance(base, ast.Attribute):
                 bases.append(self._get_attribute_name(base))
                 
-        # Get decorators
         decorators = [self._get_decorator_name(d) for d in node.decorator_list]
         
         class_info = ClassInfo(
@@ -178,7 +143,6 @@ class PythonParser:
             decorators=decorators
         )
         
-        # Parse methods
         for item in node.body:
             if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
                 method = self._parse_function(item, file_path, class_name=node.name)
@@ -192,8 +156,6 @@ class PythonParser:
         file_path: str,
         class_name: Optional[str] = None
     ) -> FunctionInfo:
-        """Parse a function or method definition."""
-        # Get parameters
         params = []
         for arg in node.args.args:
             param_name = arg.arg
@@ -201,18 +163,15 @@ class PythonParser:
                 param_name += f": {self._get_annotation_str(arg.annotation)}"
             params.append(param_name)
             
-        # Get return annotation
         return_ann = None
         if node.returns:
             return_ann = self._get_annotation_str(node.returns)
             
-        # Build signature
         async_prefix = "async " if isinstance(node, ast.AsyncFunctionDef) else ""
         signature = f"{async_prefix}def {node.name}({', '.join(params)})"
         if return_ann:
             signature += f" -> {return_ann}"
             
-        # Get decorators
         decorators = [self._get_decorator_name(d) for d in node.decorator_list]
         
         return FunctionInfo(
@@ -230,7 +189,6 @@ class PythonParser:
         )
     
     def _get_attribute_name(self, node: ast.Attribute) -> str:
-        """Recursively get the full attribute name (e.g., 'module.Class')."""
         if isinstance(node.value, ast.Name):
             return f"{node.value.id}.{node.attr}"
         elif isinstance(node.value, ast.Attribute):
@@ -238,7 +196,6 @@ class PythonParser:
         return node.attr
     
     def _get_decorator_name(self, node: ast.expr) -> str:
-        """Get the name of a decorator."""
         if isinstance(node, ast.Name):
             return node.id
         elif isinstance(node, ast.Attribute):
@@ -251,7 +208,6 @@ class PythonParser:
         return "<unknown>"
     
     def _get_annotation_str(self, node: ast.expr) -> str:
-        """Convert annotation AST node to string."""
         if isinstance(node, ast.Name):
             return node.id
         elif isinstance(node, ast.Constant):

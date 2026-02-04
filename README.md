@@ -1,4 +1,4 @@
-# 🏛️ The Codebase Archaeologist
+# The Codebase Archaeologist
 
 > An AI Agent that maps, traces, and documents legacy codebases automatically.
 
@@ -6,7 +6,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-green)
 ![Local](https://img.shields.io/badge/100%25-Local-orange)
 
-## 🎯 What is this?
+## What is this?
 
 Most "Chat with Code" tools just dump file contents into a vector database. If you ask, "Where is the user validated?", they look for the word "validate."
 
@@ -16,13 +16,13 @@ Most "Chat with Code" tools just dump file contents into a vector database. If y
 
 Onboarding new developers to a massive, undocumented 10-year-old codebase.
 
-### 🔒 100% Local - No API Keys Needed!
+### 100% Local - No API Keys Needed!
 
 - **LLM**: Ollama (runs locally)
 - **Embeddings**: sentence-transformers (local)
 - **Databases**: Neo4j + ChromaDB (local)
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -43,7 +43,7 @@ Onboarding new developers to a massive, undocumented 10-year-old codebase.
 └───────────────────────┘        └───────────────────────┘
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Prerequisites
 
@@ -93,7 +93,7 @@ docker-compose up -d
 streamlit run src/ui/app.py
 ```
 
-## 💬 Example Queries
+## Example Queries
 
 | Query Type | Example |
 |------------|---------|
@@ -104,7 +104,7 @@ streamlit run src/ui/app.py
 | **Trace** | "How does `login` connect to `database`?" |
 | **Structure** | "What's in the `utils.py` file?" |
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 codebase-archaeologist/
@@ -117,7 +117,7 @@ codebase-archaeologist/
 │   ├── brain/           # Database layer
 │   │   ├── embeddings.py    # OpenAI embeddings
 │   │   ├── vector_store.py  # ChromaDB operations
-│   │   └── graph_store.py   # Neo4j operations
+│   │   ├── graph_store.py   # Neo4j operations
 │   │
 │   ├── agent/           # LangGraph agent
 │   │   ├── tools.py     # Search tools
@@ -127,12 +127,13 @@ codebase-archaeologist/
 │       ├── app.py       # Main app
 │       └── components.py
 │
+│
 ├── tests/               # Test suite
 ├── docker-compose.yml   # Neo4j container
 └── requirements.txt
 ```
 
-## 🔧 How It Works
+## How It Works
 
 ### 1. Ingestion Engine
 
@@ -157,7 +158,7 @@ The agent routes queries to the appropriate tool:
 - Structural questions → Graph queries
 - Complex questions → Hybrid approach
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -167,10 +168,10 @@ pytest tests/ -v
 pytest tests/test_parser.py -v
 ```
 
-## 📝 License
+## License
 
 MIT
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Please read our contributing guidelines first.
