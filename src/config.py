@@ -1,5 +1,6 @@
 """
 Configuration management for Codebase Archaeologist.
+Uses local models (Ollama + sentence-transformers) - no API keys required!
 """
 
 from pathlib import Path
@@ -18,10 +19,12 @@ class Settings(BaseSettings):
         extra="ignore"
     )
     
-    # OpenAI
-    openai_api_key: str = Field(..., description="OpenAI API key")
-    openai_model: str = Field(default="gpt-4o-mini", description="OpenAI model for chat")
-    openai_embedding_model: str = Field(default="text-embedding-3-small", description="Embedding model")
+    # Ollama (Local LLM)
+    ollama_base_url: str = Field(default="http://localhost:11434", description="Ollama server URL")
+    ollama_model: str = Field(default="llama3.2", description="Ollama model name")
+    
+    # Local Embeddings
+    embedding_model: str = Field(default="all-MiniLM-L6-v2", description="Sentence transformer model")
     
     # Neo4j
     neo4j_uri: str = Field(default="bolt://localhost:7687", description="Neo4j connection URI")

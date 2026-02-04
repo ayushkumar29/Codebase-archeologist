@@ -1,12 +1,13 @@
 """
-Agent Workflow - LangGraph-based agent for code analysis.
+Agent Workflow - LangGraph-based agent using local Ollama LLM.
+No API keys required!
 """
 
 import logging
 from typing import Annotated, TypedDict, Sequence
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 
@@ -27,8 +28,8 @@ class ArchaeologistAgent:
     """
     The Codebase Archaeologist Agent.
     
-    Uses LangGraph to orchestrate between semantic search and graph queries
-    to answer questions about codebases.
+    Uses LangGraph + Ollama (local) to orchestrate between semantic search 
+    and graph queries to answer questions about codebases.
     """
     
     SYSTEM_PROMPT = """You are The Codebase Archaeologist, an AI expert at understanding 
@@ -68,10 +69,10 @@ Be thorough but concise. If you can't find something, say so clearly.
         Args:
             vector_store: VectorStore instance
             graph_store: GraphStore instance
-            model_name: OpenAI model to use
+            model_name: Ollama model to use
         """
         settings = get_settings()
-        self.model_name = model_name or settings.openai_model
+        self.model_name = model_name or settings.ollama_model
         
         self.vector_store = vector_store
         self.graph_store = graph_store
@@ -79,9 +80,9 @@ Be thorough but concise. If you can't find something, say so clearly.
         # Create tools
         self.tools = create_tools(vector_store, graph_store)
         
-        # Create LLM with tools
-        self.llm = ChatOpenAI(
-            api_key=settings.openai_api_key,
+        # Create Ollama LLM with tools
+        self.llm = ChatOllama(
+            base_url=settings.ollama_base_url,
             model=self.model_name,
             temperature=0
         ).bind_tools(self.tools)

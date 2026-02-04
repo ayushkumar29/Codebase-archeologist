@@ -4,7 +4,7 @@
 
 ![Architecture](https://img.shields.io/badge/Architecture-Hybrid_Search-blue)
 ![Python](https://img.shields.io/badge/Python-3.10+-green)
-![LangGraph](https://img.shields.io/badge/LangGraph-Agent-orange)
+![Local](https://img.shields.io/badge/100%25-Local-orange)
 
 ## 🎯 What is this?
 
@@ -16,6 +16,12 @@ Most "Chat with Code" tools just dump file contents into a vector database. If y
 
 Onboarding new developers to a massive, undocumented 10-year-old codebase.
 
+### 🔒 100% Local - No API Keys Needed!
+
+- **LLM**: Ollama (runs locally)
+- **Embeddings**: sentence-transformers (local)
+- **Databases**: Neo4j + ChromaDB (local)
+
 ## 🏗️ Architecture
 
 ```
@@ -25,16 +31,15 @@ Onboarding new developers to a massive, undocumented 10-year-old codebase.
 └────────────────────────┬────────────────────────────────────┘
                          │
 ┌────────────────────────▼────────────────────────────────────┐
-│                  LangGraph Agent                             │
+│              LangGraph Agent + Ollama (Local)                │
 │         (Query Router + Tool Orchestration)                  │
 └───────────┬─────────────────────────────────┬───────────────┘
             │                                 │
 ┌───────────▼───────────┐        ┌───────────▼───────────┐
 │    Vector Store       │        │     Graph Store       │
 │     (ChromaDB)        │        │      (Neo4j)          │
-│                       │        │                       │
+│  Local Embeddings     │        │                       │
 │  "What does X do?"    │        │  "Who calls X?"       │
-│  Semantic meaning     │        │  Structural deps      │
 └───────────────────────┘        └───────────────────────┘
 ```
 
@@ -44,9 +49,16 @@ Onboarding new developers to a massive, undocumented 10-year-old codebase.
 
 - Python 3.10+
 - Docker (for Neo4j)
-- OpenAI API key
+- **Ollama** (for local LLM): https://ollama.com/download
 
-### 2. Installation
+### 2. Install Ollama & Download Model
+
+```bash
+# After installing Ollama, download a model
+ollama pull llama3.2
+```
+
+### 3. Installation
 
 ```bash
 # Clone the repo
@@ -62,22 +74,20 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 3. Configuration
+### 4. Configuration
 
 ```bash
-# Copy environment template
+# Copy environment template (no API keys needed!)
 copy .env.example .env
-
-# Edit .env and add your OpenAI API key
 ```
 
-### 4. Start Neo4j
+### 5. Start Neo4j
 
 ```bash
 docker-compose up -d
 ```
 
-### 5. Run the App
+### 6. Run the App
 
 ```bash
 streamlit run src/ui/app.py

@@ -1,11 +1,12 @@
 """
-Embedding Generator - Creates embeddings for code snippets using OpenAI.
+Embedding Generator - Creates embeddings using local sentence-transformers.
+No API keys required!
 """
 
 import logging
 from typing import Optional
 
-from langchain_openai import OpenAIEmbeddings
+from sentence_transformers import SentenceTransformer
 
 from src.config import get_settings
 
@@ -13,22 +14,21 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingGenerator:
-    """Generates embeddings for code snippets."""
+    """Generates embeddings using local sentence-transformers models."""
     
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model_name: Optional[str] = None):
         """
         Initialize the embedding generator.
         
         Args:
-            model: OpenAI embedding model to use
+            model_name: HuggingFace model name (default: all-MiniLM-L6-v2)
         """
         settings = get_settings()
-        self.model = model or settings.openai_embedding_model
+        self.model_name = model_name or settings.embedding_model
         
-        self._embeddings = OpenAIEmbeddings(
-            api_key=settings.openai_api_key,
-            model=self.model
-        )
+        logger.info(f"Loading local embedding model: {self.model_name}")
+        self._model = SentenceTransformer(self.model_name)
+        logger.info("Embedding model loaded successfully")
         
     def embed_text(self, text: str) -> list[float]:
         """
@@ -40,7 +40,8 @@ class EmbeddingGenerator:
         Returns:
             Embedding vector as list of floats
         """
-        return self._embeddings.embed_query(text)
+        embedding = self._model.encode(text, convert_to_numpy=True)
+        return embedding.tolist()
     
     def embed_texts(self, texts: list[str]) -> list[list[float]]:
         """
@@ -52,7 +53,8 @@ class EmbeddingGenerator:
         Returns:
             List of embedding vectors
         """
-        return self._embeddings.embed_documents(texts)
+        embeddings = self._model.encode(texts, convert_to_numpy=True)
+        return embeddings.tolist()
     
     def embed_code(self, code: str, docstring: Optional[str] = None) -> list[float]:
         """
